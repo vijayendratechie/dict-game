@@ -23,19 +23,20 @@ async function defn(word)
 
 
 //RANDOM WORDS
-function randomWord()
+async function randomWord()
 {
-	axios.get(apihost+'/words/randomWord?api_key='+api_key)
-	.then(function (response) {
-	// handle success
-	console.log(response.data);
-	})
-	.catch(function (error) {
-	// handle error
-	console.log(error);
-	})	
+	let data = await axios.get(apihost+'/words/randomWord?api_key='+api_key)
+					.then(function (response) {
+					// handle success
+						return (response.data.word);
+					})
+					.catch(function (error) {
+					// handle error
+					//console.log(error);
+						return 0;	
+					})	
+	return data;
 }
-
 
 
 //SYNONYMS AND ANTONYMS
@@ -94,7 +95,7 @@ function displaySentence(sentencearr)
 {
 	for(let i=0;i<sentencearr.length;i++)
 	{
-		console.log((i+1)+") "+sentencearr[i].text);
+		console.log((i+1)+") "+sentencearr[i].text+"\n");
 	}
 }
 
@@ -104,6 +105,40 @@ function displayRelatedWords(wordsarr)
 	for(let i=0;i<wordsarr.length;i++)
 	{
 		console.log((i+1)+") "+wordsarr[i]);
+	}
+}
+
+async function displayAll(word)
+{
+	let defination = await defn(word);
+	let synwords = await relatedWords(word,'syn');
+	let antwords = await relatedWords(word,'ant');
+	let ex = await examples(word);
+	if(defination === 0)
+	{
+		console.log("\nError while finding word full dict");
+	}
+	else if(antwords === 1)
+	{
+		console.log("\nDefinations of "+word.toUpperCase()+" are : \n");	
+			displaySentence(defination);
+			console.log("\nSynonyms are : \n");
+			displayRelatedWords(synwords);
+			console.log("\nNo antonyms for given word");
+			console.log("\nExamples for "+word.toUpperCase()+" are : \n");	
+			displaySentence(ex.examples);
+
+	}
+	else
+	{
+		console.log("\nDefination of "+word.toUpperCase()+" are : \n");	
+			displaySentence(defination);
+			console.log("\nSynonyms are : \n");
+			displayRelatedWords(synwords);
+			console.log("\nAntonyms are : \n");
+			displayRelatedWords(antwords);
+			console.log("\nExamples for "+word.toUpperCase()+" are : \n");	
+			displaySentence(ex.examples);
 	}
 }
 
@@ -117,18 +152,18 @@ async function run()
 			console.log("defn");
 	 		if(typeof word === 'undefined')
 	 		{
-	 			console.log("No Word Entered");
+	 			console.log("\nNo Word Entered");
 	 		}
 	 		else
 	 		{
 	 			let defination = await defn(word);	
 	 			if(defination === 0)
 	 			{
-	 				console.log("Error while finding defination");	
+	 				console.log("\nError while finding defination");	
 	 			}
 	 			else
 	 			{
-	 				console.log("Defination of "+word+" are : \n");	
+	 				console.log("\nDefinations of "+word.toUpperCase()+" are : \n");	
 	 				displaySentence(defination);
 	 			}
 	 			
@@ -140,22 +175,22 @@ async function run()
 			console.log("syn");
 	 		if(typeof word === 'undefined')
 	 		{
-	 			console.log("No Word Entered");
+	 			console.log("\nNo Word Entered");
 	 		}
 	 		else
 	 		{
 	 			let synwords = await relatedWords(word,'syn');	
 	 			if(synwords === 0)
 	 			{
-	 				console.log("Error while finding synonyms");	
+	 				console.log("\nError while finding synonyms");	
 	 			}
 	 			else if(synwords === 1)
 	 			{
-	 				console.log("No synonyms for given word");	
+	 				console.log("\nNo synonyms for given word");	
 	 			}
 	 			else
 	 			{
-	 				console.log("Synonyms are : \n");
+	 				console.log("\nSynonyms are : \n");
 	 				displayRelatedWords(synwords);
 	 			}
 	 			
@@ -167,22 +202,22 @@ async function run()
 			console.log("ant");
 	 		if(typeof word === 'undefined')
 	 		{
-	 			console.log("No Word Entered");
+	 			console.log("\nNo Word Entered");
 	 		}
 	 		else
 	 		{
 	 			let antwords = await relatedWords(word,'ant');	
 	 			if(antwords === 0)
 	 			{
-	 				console.log("Error while finding antonyms");	
+	 				console.log("\nError while finding antonyms");	
 	 			}
 	 			else if(antwords === 1)
 	 			{
-	 				console.log("No antonyms for given word");	
+	 				console.log("\nNo antonyms for given word");	
 	 			}
 	 			else
 	 			{
-	 				console.log("Antonyms are : \n");
+	 				console.log("\nAntonyms are : \n");
 	 				displayRelatedWords(antwords);
 	 			}
 	 		} 		
@@ -193,18 +228,18 @@ async function run()
 			console.log("ex");
 			if(typeof word === 'undefined')
 	 		{
-	 			console.log("No Word Entered");
+	 			console.log("\nNo Word Entered");
 	 		}
 	 		else
 	 		{
 	 			let ex = await examples(word);
 	 			if(ex === 0)
 	 			{
-	 				console.log("Error while finding examples");	
+	 				console.log("\nError while finding examples");	
 	 			}
 	 			else
 	 			{
-	 				console.log("Examples for "+word+" are : \n");	
+	 				console.log("\nExamples for "+word+" are : \n");	
 	 				displaySentence(ex.examples);
 	 			}
 	 		}
@@ -215,24 +250,15 @@ async function run()
 			if(typeof option !== 'undefined')
 			{
 				let word = option;
-				let defination = await defn(word);
-				let synwords = await relatedWords(word,'syn');
-				let antwords = await relatedWords(word,'ant');
-				let ex = await examples(word);
-				if(defination === 0)
-				{
-					console.log("Error while finding word full dict");
-				}
-				else if(antwords === 0)
-				{
-
-				}
-				else
-				{
-
-				}
+				displayAll(word);
+				
 			}
-		}	
+			else if(typeof option === 'undefined')
+			{
+				let randword = await randomWord();
+				displayAll(randword);
+			}
+		}			
 		break;
 	}
 }
