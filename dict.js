@@ -17,7 +17,6 @@ async function defn(word)
 			    return (response.data);
 			  })
 			  .catch(function (error) {
-			    // handle error
 			    return 0;			    
 			  })	
 	return data;
@@ -34,7 +33,6 @@ async function randomWord()
 					})
 					.catch(function (error) {
 					// handle error
-					//console.log(error);
 						return 0;	
 					})	
 	return data;
@@ -52,7 +50,7 @@ async function relatedWords(word,wordtype)
 				  	for(let i=0;i<response.data.length;i++)
 					{
 						obj = response.data[i];
-						//console.log(obj);
+						
 						if(obj.relationshipType === 'antonym' && wordtype === 'ant')
 						{
 							antwords = obj.words;
@@ -69,7 +67,6 @@ async function relatedWords(word,wordtype)
 				  })
 				  .catch(function (error) {
 				    // handle error
-				    //console.log(error);
 				  	return 0;
 				  });
 	return data;	
@@ -110,6 +107,7 @@ function displayRelatedWords(wordsarr)
 	}
 }
 
+//TO DISPLAY ALL DETAILS OF A WORD
 async function displayAll(word)
 {
 	let defination = await defn(word);
@@ -123,30 +121,30 @@ async function displayAll(word)
 	else if(antwords === 1)
 	{
 		console.log("\nWord is : "+word.toUpperCase());
-		console.log("\nDefinations of '"+word.toUpperCase()+"' are : \n");	
+		console.log("\nDefinations of '"+word.toUpperCase()+"' are : ");	
 		displaySentence(defination);
-		console.log("\nSynonyms are : \n");
+		console.log("\nSynonyms are : ");
 		displayRelatedWords(synwords);
 		console.log("\nNo antonyms for given word");
-		console.log("\nExamples for '"+word.toUpperCase()+"' are : \n");	
+		console.log("\nExamples for '"+word.toUpperCase()+"' are : ");	
 		displaySentence(ex.examples);
 
 	}
 	else
 	{
 		console.log("\nWord is : "+word.toUpperCase());
-		console.log("\nDefination of '"+word.toUpperCase()+"' are : \n");	
+		console.log("\nDefination of '"+word.toUpperCase()+"' are : ");	
 		displaySentence(defination);
-		console.log("\nSynonyms are : \n");
+		console.log("\nSynonyms are : ");
 		displayRelatedWords(synwords);
-		console.log("\nAntonyms are : \n");
+		console.log("\nAntonyms are : ");
 		displayRelatedWords(antwords);
-		console.log("\nExamples for '"+word.toUpperCase()+"' are : \n");	
+		console.log("\nExamples for '"+word.toUpperCase()+"' are : ");	
 		displaySentence(ex.examples);
 	}
 }
 
-
+//MAIN FUNCTION
 async function run()
 {
 	switch(option)
@@ -154,7 +152,7 @@ async function run()
 		//Word Definitions
 		case 'defn' : 
 		{
-			console.log("defn");
+			//console.log("defn");
 	 		if(typeof word === 'undefined')
 	 		{
 	 			console.log("\nNo Word Entered");
@@ -168,7 +166,7 @@ async function run()
 	 			}
 	 			else
 	 			{
-	 				console.log("\nDefinations of '"+word.toUpperCase()+"' are : \n");	
+	 				console.log("\nDefinations of '"+word.toUpperCase()+"' are : ");	
 	 				displaySentence(defination);
 	 			}
 	 			
@@ -178,7 +176,7 @@ async function run()
 		//Word Synonyms
 		case 'syn' : 
 		{
-			console.log("syn");
+			//console.log("syn");
 	 		if(typeof word === 'undefined')
 	 		{
 	 			console.log("\nNo Word Entered");
@@ -196,7 +194,7 @@ async function run()
 	 			}
 	 			else
 	 			{
-	 				console.log("\nSynonyms are : \n");
+	 				console.log("\nSynonyms are : ");
 	 				displayRelatedWords(synwords);
 	 			}
 	 			
@@ -206,7 +204,7 @@ async function run()
 		//Word Antonyms
 		case 'ant' : 
 		{
-			console.log("ant");
+			//console.log("ant");
 	 		if(typeof word === 'undefined')
 	 		{
 	 			console.log("\nNo Word Entered");
@@ -224,7 +222,7 @@ async function run()
 	 			}
 	 			else
 	 			{
-	 				console.log("\nAntonyms are : \n");
+	 				console.log("\nAntonyms are : ");
 	 				displayRelatedWords(antwords);
 	 			}
 	 		} 		
@@ -247,7 +245,7 @@ async function run()
 	 			}
 	 			else
 	 			{
-	 				console.log("\nExamples for '"+word+"' are : \n");	
+	 				console.log("\nExamples for '"+word.toUpperCase()+"' are : ");	
 	 				displaySentence(ex.examples);
 	 			}
 	 		}
@@ -255,8 +253,8 @@ async function run()
 		}
 		case 'play' :
 		{
-			let arrindex,divisor=3;
-			let randword = "single" //await randomWord();
+			let arrindex,seed=3;
+			let randword = await randomWord();
 			let defination = await defn(randword);
 			let synwords = await relatedWords(randword,'syn');
 			let antwords = await relatedWords(randword,'ant');
@@ -267,20 +265,21 @@ async function run()
 			}
 			else if(antwords === 1)
 			{
-				divisor = 2;
+				seed = 2;
 			}
 
 
-			let randnum = 1//Math.floor(Math.random() * 10);
-			console.log(randnum);
+			let randnum = Math.floor(Math.random() * seed);
+			//console.log(randnum);
 
-			if(randnum%divisor == 0)
+			//DISPLAY DEFINATION,SYNONYM OR ANTONYM OF WORD
+			if(randnum === 0)
 			{
 				arrindex = Math.floor(Math.random() * defination.length);				
 				console.log("Guess the word whose defination is : \n"+defination[arrindex].text);	
 				displayPrompt(defination,randword,synwords,antwords,arrindex,0);
 			}
-			else if(randnum%divisor == 1)
+			else if(randnum === 1)
 			{
 				arrindex = Math.floor(Math.random() * synwords.length);				
 				console.log("Guess the word whose Synonym is : "+synwords[arrindex]);
@@ -292,7 +291,6 @@ async function run()
 				console.log("Guess the word whose Antonym is : "+antwords[arrindex]);
 				displayPrompt(defination,randword,synwords,antwords,arrindex,2);
 			}		
-			
 			break;
 		}		
 		default : 
@@ -316,13 +314,14 @@ async function run()
 
 run();
 
+//DISPLAY PROMPT FOR USER TO GIVE INPUT
 function displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag)
 {
 	inquirer
 	  .prompt([
 	    {
 	      name: 'word',
-	      message: 'Enter the word',
+	      message: '\nEnter the word',
 	      default: 'No Word Entered',
 	    },
 	  ])
@@ -337,7 +336,7 @@ function displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag
 		}
 		else if(answers.word === randword)
 		{
-			console.log("You have guessed the correct word.");
+			console.log("\nYou have guessed the correct word.");
 		}
 		else
 		{
@@ -359,7 +358,7 @@ function displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag
 			}			    	
 			if(checkflag)
 			{
-				console.log("\nYou have guessed the correct synonym word");
+				console.log("\nYou have guessed the correct synonym of the word");
 			} 
 			else
 			{
@@ -371,6 +370,7 @@ function displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag
   });
 }
 
+//OPTION MENU
 function menu(defination,randword,synwords,antwords,arrindex,optionflag)
 {
 	inquirer
@@ -378,7 +378,7 @@ function menu(defination,randword,synwords,antwords,arrindex,optionflag)
 	    {
 	      type : 'rawlist',	
 	      name: 'choice',
-	      message: 'Menu : ',
+	      message: '\nMenu : ',
 	      choices: ['Try Again','Hint','Quit']
 	    },
 	  ])
@@ -391,31 +391,72 @@ function menu(defination,randword,synwords,antwords,arrindex,optionflag)
 	  			break;
 	  		case 'Hint' : 
 	  		{
-	  			let randnum = 1//Math.floor(Math.random() * 3);
+	  			let seed;
+	  			if(antwords === 1)
+	  			{
+	  				seed = 3;
+	  			}
+	  			else
+	  			{
+	  				seed = 4;
+	  			}
 
-	  			if(randnum%3 === 0)
+	  			let randnum = Math.floor(Math.random() * seed);
+
+	  			if(randnum === 0)   //SHOW JUMBLED FOR WORD AS HINT
 	  			{
 	  				let jumbleword = jumbleWord(randword);
-		  			console.log("\n Hint : Jumbled form of the word is - "+jumbleword);
+		  			console.log("\nHint : Jumbled form of the word is - "+jumbleword);
 		  			displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);	
 	  			}
-	  			else if(randnum%3 === 1)
+	  			else if(randnum === 1)    //SHOW SYNONYM OF WORD AS HINT
 	  			{
-	  				let synofword;
+	  				let synhint;
 	  				if(optionflag === 1)
 	  				{
-	  					synofword = synOfWord(synwords,arrindex);
-	  					console.log("\n Hint : Synonym of the  word is - "+synofword);	
+	  					synhint = hint(synwords,arrindex);
+	  					console.log("\nHint : Synonym of the word is - "+synhint);	
 	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
 	  				}
 	  				else
 	  				{
-	  					synofword = synOfWord(synwords,null);
-	  					console.log("\n Hint : Synonym of the  word is - "+synofword);	
+	  					synhint = hint(synwords,null);
+	  					console.log("\nHint : Synonym of the word is - "+synhint);	
+	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
+	  				}	  				
+	  			}	
+	  			else if(randnum === 2)    //SHOW DEFINATION OF WORD AS HINT
+	  			{
+	  				let defhint;
+	  				if(optionflag === 0)
+	  				{
+	  					defhint = hint(defination,arrindex);
+	  					console.log("\nHint : Defination of the word is - \n"+defhint.text);	
 	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
 	  				}
-	  				
-	  			}	  			
+	  				else
+	  				{
+	  					defhint = hint(defination,null);
+	  					console.log("\nHint : Defination of the word is - \n"+defhint.text);	
+	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
+	  				}
+	  			}  	
+	  			else if(randnum === 3)   //SHOW ANTONYM OF WORD AS HINT IF ANTONYMS OF THE WORD EXISTS
+	  			{
+	  				let anthint;
+	  				if(optionflag === 2)
+	  				{
+	  					anthint = hint(antwords,arrindex);
+	  					console.log("\nHint : Antonym of the word is - "+anthint);	
+	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
+	  				}
+	  				else
+	  				{
+	  					anthint = hint(antwords,null);
+	  					console.log("\nHint : Antonym of the word is - "+anthint);	
+	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
+	  				}
+	  			}		
 	  		}
 	  		break;
 	  		case 'Quit' : 
@@ -427,7 +468,7 @@ function menu(defination,randword,synwords,antwords,arrindex,optionflag)
 	  });
 }
 
-
+//JUMBLE WORD
 function jumbleWord(randword)
 {
 	let jumbleword = randword.split('');
@@ -442,22 +483,23 @@ function jumbleWord(randword)
 	return jumbleword.join("");
 }
 
-function synOfWord(synwords,displayedwordindex)
+//TO GENERATE ANOTHER SYNONYM,DEFINATION,ANTONYM AS HINT
+function hint(arr,displayedwordindex)
 {
 	let generatedarrindex;
 	while(true)
 	{
-		generatedarrindex = Math.floor(Math.random() * synwords.length);
+		generatedarrindex = Math.floor(Math.random() * arr.length);
 
-		if(displayedwordindex === null)     //If Synonym word displayed not to include it in hints
+		if(displayedwordindex === null)      
 		{	
 			break;			
 		}
-		else if(generatedarrindex != displayedwordindex)
+		else if(generatedarrindex != displayedwordindex)     //NOT DISPLAY THE SAME CONTENT AS HINT THAT IS USED AS QUESTION
 		{
 			break;
 		}
 	}
-
-	return synwords[generatedarrindex];
+	return arr[generatedarrindex];
 }
+
