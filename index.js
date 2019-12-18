@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const axios = require('axios');
+const inquirer = require('inquirer');
+
 let apihost = 'https://fourtytwowords.herokuapp.com';
 let api_key = "b972c7ca44dda72a5b482052b1f5e13470e01477f3fb97c85d5313b3c112627073481104fec2fb1a0cc9d84c2212474c0cbe7d8e59d7b95c7cb32a1133f778abd1857bf934ba06647fda4f59e878d164";
 
@@ -120,25 +122,27 @@ async function displayAll(word)
 	}
 	else if(antwords === 1)
 	{
-		console.log("\nDefinations of "+word.toUpperCase()+" are : \n");	
-			displaySentence(defination);
-			console.log("\nSynonyms are : \n");
-			displayRelatedWords(synwords);
-			console.log("\nNo antonyms for given word");
-			console.log("\nExamples for "+word.toUpperCase()+" are : \n");	
-			displaySentence(ex.examples);
+		console.log("\nWord is : "+word.toUpperCase());
+		console.log("\nDefinations of '"+word.toUpperCase()+"' are : \n");	
+		displaySentence(defination);
+		console.log("\nSynonyms are : \n");
+		displayRelatedWords(synwords);
+		console.log("\nNo antonyms for given word");
+		console.log("\nExamples for '"+word.toUpperCase()+"' are : \n");	
+		displaySentence(ex.examples);
 
 	}
 	else
 	{
-		console.log("\nDefination of "+word.toUpperCase()+" are : \n");	
-			displaySentence(defination);
-			console.log("\nSynonyms are : \n");
-			displayRelatedWords(synwords);
-			console.log("\nAntonyms are : \n");
-			displayRelatedWords(antwords);
-			console.log("\nExamples for "+word.toUpperCase()+" are : \n");	
-			displaySentence(ex.examples);
+		console.log("\nWord is : "+word.toUpperCase());
+		console.log("\nDefination of '"+word.toUpperCase()+"' are : \n");	
+		displaySentence(defination);
+		console.log("\nSynonyms are : \n");
+		displayRelatedWords(synwords);
+		console.log("\nAntonyms are : \n");
+		displayRelatedWords(antwords);
+		console.log("\nExamples for '"+word.toUpperCase()+"' are : \n");	
+		displaySentence(ex.examples);
 	}
 }
 
@@ -147,6 +151,7 @@ async function run()
 {
 	switch(option)
 	{
+		//Word Definitions
 		case 'defn' : 
 		{
 			console.log("defn");
@@ -163,13 +168,14 @@ async function run()
 	 			}
 	 			else
 	 			{
-	 				console.log("\nDefinations of "+word.toUpperCase()+" are : \n");	
+	 				console.log("\nDefinations of '"+word.toUpperCase()+"' are : \n");	
 	 				displaySentence(defination);
 	 			}
 	 			
 	 		} 		
 	 		break;	
 		}
+		//Word Synonyms
 		case 'syn' : 
 		{
 			console.log("syn");
@@ -197,6 +203,7 @@ async function run()
 	 		} 		
 	 		break;	
 		}
+		//Word Antonyms
 		case 'ant' : 
 		{
 			console.log("ant");
@@ -223,6 +230,7 @@ async function run()
 	 		} 		
 	 		break;	
 		}
+		//Word Examples
 		case 'ex' :
 		{
 			console.log("ex");
@@ -239,21 +247,35 @@ async function run()
 	 			}
 	 			else
 	 			{
-	 				console.log("\nExamples for "+word+" are : \n");	
+	 				console.log("\nExamples for '"+word+"' are : \n");	
 	 				displaySentence(ex.examples);
 	 			}
 	 		}
 	 		break;
 		}
+		case 'play' :
+		{
+			let randword = "color";  //await randomWord();
+			let defination = await defn(randword);
+			let synwords = await relatedWords(randword,'syn');
+			//console.log(synwords);
+
+			console.log("Guess the word whose defination is : \n"+defination[0].text);
+			
+			displayQuestion(defination[0].text,randword,synwords);
+			
+			break;
+		}		
 		default : 
 		{
+			//Word Full Dict
 			if(typeof option !== 'undefined')
 			{
 				let word = option;
 				displayAll(word);
 				
 			}
-			else if(typeof option === 'undefined')
+			else if(typeof option === 'undefined') //Word of the Day Full Dict
 			{
 				let randword = await randomWord();
 				displayAll(randword);
@@ -265,4 +287,78 @@ async function run()
 
 run();
 
+function displayQuestion(defination,randword,synwords)
+{
+	inquirer
+	  .prompt([
+	    {
+	      name: 'word',
+	      message: 'Enter the word',
+	      default: 'No Word Entered',
+	    },
+	  ])
+	  .then(answers => {
+	    //console.log(synwords);
 
+	    if(answers.word === 'No Word Entered')
+		{
+			console.log("\nYou have not entered any word");
+			menu(defination,randword,synwords) //Show menu;
+			
+		}
+		else if(answers.word === randword)
+		{
+			console.log("You have guessed the correct word.");
+		}
+		else
+		{
+			let checkflag = false;
+			for(let i=0;i<synwords.length;i++)
+			{
+				if(answers.word === synwords[i])
+				{
+					checkflag = true;
+					break;
+				}
+			}			    	
+			if(checkflag)
+			{
+				console.log("\nYou have guessed the correct word");
+			} 
+			else
+			{
+				console.log("\nWrong guess");
+				menu(defination,randword,synwords);		  
+				
+			}
+		}			    
+  });
+}
+
+function menu(defination,randword,synwords)
+{
+	inquirer
+	  .prompt([
+	    {
+	      type : 'rawlist',	
+	      name: 'choice',
+	      message: 'Menu : ',
+	      choices: ['Try Again','Hint','Quit']
+	    },
+	  ])
+	  .then(answers => {
+	  	console.log('Answer:', answers.choice);
+	  	switch(answers.choice)
+	  	{
+	  		case 'Try Again' : 
+	  			displayQuestion(defination,randword,synwords);
+	  			break;
+	  		case 'Hint' : break;
+	  		case 'Quit' : 
+	  		{
+	  			displayAll(randword);
+	  		}
+	  		default : break;
+	  	}							  	
+	  });
+}
