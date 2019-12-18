@@ -255,14 +255,43 @@ async function run()
 		}
 		case 'play' :
 		{
-			let randword = "color";  //await randomWord();
+			let arrindex,divisor=3;
+			let randword = "single" //await randomWord();
 			let defination = await defn(randword);
 			let synwords = await relatedWords(randword,'syn');
+			let antwords = await relatedWords(randword,'ant');
 			//console.log(synwords);
+			if(defination === 0 || synwords === 0 || antwords === 0)
+			{
+				console.log("Error!! Please try again");
+			}
+			else if(antwords === 1)
+			{
+				divisor = 2;
+			}
 
-			console.log("Guess the word whose defination is : \n"+defination[0].text);
-			
-			displayQuestion(defination[0].text,randword,synwords);
+
+			let randnum = 1//Math.floor(Math.random() * 10);
+			console.log(randnum);
+
+			if(randnum%divisor == 0)
+			{
+				arrindex = Math.floor(Math.random() * defination.length);				
+				console.log("Guess the word whose defination is : \n"+defination[arrindex].text);	
+				displayPrompt(defination,randword,synwords,antwords,arrindex,0);
+			}
+			else if(randnum%divisor == 1)
+			{
+				arrindex = Math.floor(Math.random() * synwords.length);				
+				console.log("Guess the word whose Synonym is : "+synwords[arrindex]);
+				displayPrompt(defination,randword,synwords,antwords,arrindex,1);
+			}
+			else
+			{
+				arrindex = Math.floor(Math.random() * antwords.length);				
+				console.log("Guess the word whose Antonym is : "+antwords[arrindex]);
+				displayPrompt(defination,randword,synwords,antwords,arrindex,2);
+			}		
 			
 			break;
 		}		
@@ -287,7 +316,7 @@ async function run()
 
 run();
 
-function displayQuestion(defination,randword,synwords)
+function displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag)
 {
 	inquirer
 	  .prompt([
@@ -303,7 +332,7 @@ function displayQuestion(defination,randword,synwords)
 	    if(answers.word === 'No Word Entered')
 		{
 			console.log("\nYou have not entered any word");
-			menu(defination,randword,synwords) //Show menu;
+			menu(defination,randword,synwords,antwords,arrindex,optionflag) //Show menu;
 			
 		}
 		else if(answers.word === randword)
@@ -317,25 +346,32 @@ function displayQuestion(defination,randword,synwords)
 			{
 				if(answers.word === synwords[i])
 				{
-					checkflag = true;
-					break;
+					if(optionflag === 1 && answers.word === synwords[arrindex])
+					{
+						break;
+					}
+					else
+					{
+						checkflag = true;
+						break;	
+					}					
 				}
 			}			    	
 			if(checkflag)
 			{
-				console.log("\nYou have guessed the correct word");
+				console.log("\nYou have guessed the correct synonym word");
 			} 
 			else
 			{
 				console.log("\nWrong guess");
-				menu(defination,randword,synwords);		  
+				menu(defination,randword,synwords,antwords,arrindex,optionflag);		  
 				
 			}
 		}			    
   });
 }
 
-function menu(defination,randword,synwords)
+function menu(defination,randword,synwords,antwords,arrindex,optionflag)
 {
 	inquirer
 	  .prompt([
@@ -351,9 +387,37 @@ function menu(defination,randword,synwords)
 	  	switch(answers.choice)
 	  	{
 	  		case 'Try Again' : 
-	  			displayQuestion(defination,randword,synwords);
+	  			displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
 	  			break;
-	  		case 'Hint' : break;
+	  		case 'Hint' : 
+	  		{
+	  			let randnum = 1//Math.floor(Math.random() * 3);
+
+	  			if(randnum%3 === 0)
+	  			{
+	  				let jumbleword = jumbleWord(randword);
+		  			console.log("\n Hint : Jumbled form of the word is - "+jumbleword);
+		  			displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);	
+	  			}
+	  			else if(randnum%3 === 1)
+	  			{
+	  				let synofword;
+	  				if(optionflag === 1)
+	  				{
+	  					synofword = synOfWord(synwords,arrindex);
+	  					console.log("\n Hint : Synonym of the  word is - "+synofword);	
+	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
+	  				}
+	  				else
+	  				{
+	  					synofword = synOfWord(synwords,null);
+	  					console.log("\n Hint : Synonym of the  word is - "+synofword);	
+	  					displayPrompt(defination,randword,synwords,antwords,arrindex,optionflag);
+	  				}
+	  				
+	  			}	  			
+	  		}
+	  		break;
 	  		case 'Quit' : 
 	  		{
 	  			displayAll(randword);
@@ -361,4 +425,39 @@ function menu(defination,randword,synwords)
 	  		default : break;
 	  	}							  	
 	  });
+}
+
+
+function jumbleWord(randword)
+{
+	let jumbleword = randword.split('');
+
+	//Shuffle the remaining letters
+	for (let i = jumbleword.length - 1; i > 0; i--)
+	{
+		let j = Math.floor(Math.random() * (i + 1));
+	    [jumbleword[i], jumbleword[j]] = [jumbleword[j], jumbleword[i]];
+	}
+
+	return jumbleword.join("");
+}
+
+function synOfWord(synwords,displayedwordindex)
+{
+	let generatedarrindex;
+	while(true)
+	{
+		generatedarrindex = Math.floor(Math.random() * synwords.length);
+
+		if(displayedwordindex === null)     //If Synonym word displayed not to include it in hints
+		{	
+			break;			
+		}
+		else if(generatedarrindex != displayedwordindex)
+		{
+			break;
+		}
+	}
+
+	return synwords[generatedarrindex];
 }
